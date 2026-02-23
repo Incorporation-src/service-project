@@ -5,7 +5,8 @@
 #include <iostream>
 #include <string>
 
-int main() {
+int main() 
+{
     crow::SimpleApp app;
     
     std::cout << "   Starting Order Service on port 8082..." << std::endl;
@@ -29,12 +30,13 @@ int main() {
         std::cout << "   POST /orders called" << std::endl;
         
         auto x = crow::json::load(req.body);
-        if (!x) {
+        if (!x) 
+        {
             return crow::response(400, "Invalid JSON");
         }
         
-        // Проверяем обязательные поля
-        if (!x.has("user_id") || !x.has("title") || !x.has("amount")) {
+        if (!x.has("user_id") || !x.has("title") || !x.has("amount")) 
+        {
             return crow::response(400, "Missing required fields: user_id, title, amount");
         }
         
@@ -42,12 +44,14 @@ int main() {
         std::string title = x["title"].s();
         double amount = x["amount"].d();
         
-        if (user_id <= 0 || title.empty() || amount <= 0) {
+        if (user_id <= 0 || title.empty() || amount <= 0) 
+        {
             return crow::response(400, "Invalid data: user_id must be >0, title not empty, amount >0");
         }
         
         int newId = db->addOrder(user_id, title, amount);
-        if (newId > 0) {
+        if (newId > 0) 
+        {
             crow::json::wvalue result;
             result["id"] = newId;
             result["user_id"] = user_id;
@@ -55,8 +59,11 @@ int main() {
             result["amount"] = amount;
             result["status"] = "new";
             result["message"] = "Order created successfully";
+
             return crow::response(201, result);
-        } else {
+        } 
+        else 
+        {
             return crow::response(500, "Failed to create order");
         }
     });
@@ -67,7 +74,8 @@ int main() {
         
         Order order = db->getOrder(order_id);
         
-        if (order.id == -1) {
+        if (order.id == -1) 
+        {
             return crow::response(404, "Order not found");
         }
         
@@ -77,6 +85,7 @@ int main() {
         result["title"] = order.title;
         result["status"] = order.status;
         result["amount"] = order.amount;
+        
         return crow::response(result);
     });
 
@@ -113,7 +122,8 @@ int main() {
         crow::json::wvalue result;
         std::vector<crow::json::wvalue> orders_json;
         
-        for (const auto& order : orders) {
+        for (const auto& order : orders) 
+        {
             crow::json::wvalue o;
             o["id"] = order.id;
             o["user_id"] = order.user_id;
@@ -125,6 +135,7 @@ int main() {
         
         result["orders"] = std::move(orders_json);
         result["count"] = orders.size();
+
         return crow::response(result);
     });
 
@@ -133,22 +144,27 @@ int main() {
         std::cout << "   PUT /orders/" << order_id << "/status called" << std::endl;
         
         auto x = crow::json::load(req.body);
-        if (!x || !x.has("status")) {
+        if (!x || !x.has("status")) 
+        {
             return crow::response(400, "Missing status field");
         }
         
         std::string status = x["status"].s();
-        if (status.empty()) {
+        if (status.empty()) 
+        {
             return crow::response(400, "Status cannot be empty");
         }
         
-        if (db->updateOrderStatus(order_id, status)) {
+        if (db->updateOrderStatus(order_id, status)) 
+        {
             crow::json::wvalue result;
             result["id"] = order_id;
             result["status"] = status;
             result["message"] = "Status updated";
             return crow::response(result);
-        } else {
+        } 
+        else 
+        {
             return crow::response(404, "Order not found");
         }
     });
@@ -157,12 +173,15 @@ int main() {
     ([db](int order_id){
         std::cout << "   DELETE /orders/" << order_id << " called" << std::endl;
         
-        if (db->deleteOrder(order_id)) {
+        if (db->deleteOrder(order_id)) 
+        {
             crow::json::wvalue result;
             result["message"] = "Order deleted";
             result["id"] = order_id;
             return crow::response(result);
-        } else {
+        } 
+        else 
+        {
             return crow::response(404, "Order not found");
         }
     });
@@ -176,7 +195,7 @@ int main() {
     std::cout << "   GET  /orders" << std::endl;
     std::cout << "   PUT  /orders/<id>/status" << std::endl;
     std::cout << "   DELETE /orders/<id>" << std::endl;
-    
+
     std::cout << "   Server listening on port 8082" << std::endl;
     
     app.port(8082).multithreaded().run();

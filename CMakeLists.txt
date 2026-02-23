@@ -6,6 +6,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 find_package(SQLite3 REQUIRED)
 
+find_package(CURL REQUIRED)
+
 # ==================== User Service ====================
 set(USER_SERVICE_SOURCES
     user_service/src/main.cpp
@@ -17,11 +19,13 @@ add_executable(user_service ${USER_SERVICE_SOURCES})
 target_include_directories(user_service PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/user_service/include
     ${SQLITE3_INCLUDE_DIRS}
+    ${CURL_INCLUDE_DIRS}
 )
 
 target_link_libraries(user_service PRIVATE
     pthread
     sqlite3
+    ${CURL_LIBRARIES}
 )
 
 # ==================== Order Service ====================
